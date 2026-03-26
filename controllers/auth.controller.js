@@ -159,8 +159,8 @@ export const callback = catchAsync(async (req , res , next) => {
 
     res.cookie('vibe_session' , vibeToken , {
         httpOnly: true,
-        // secure: process.env.NODE_ENV === 'production',
-        // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 
     });
     syncUserPreferences(user._id)

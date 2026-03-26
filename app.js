@@ -19,8 +19,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL, 
-  credentials: true
+  origin: process.env.CLIENT_URL || "http://127.0.0.1:3000", 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
