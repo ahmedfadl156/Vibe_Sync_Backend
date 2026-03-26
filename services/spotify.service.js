@@ -408,9 +408,9 @@ export const getFullLibraryDetails = async (userId) => {
     console.log(`Got ${fullArtists.length} artists | ${fullTracks.length} tracks for ${user.displayName}`);
 
     const result = { artists: fullArtists, tracks: fullTracks };
-
+    // هنحطها فى الكاش لمدة 7 ايام كدا كدا مش بتتجدد الا كل فترة
     if (fullArtists.length > 0 || fullTracks.length > 0) {
-        await redisClient.setEx(cacheKey, 86400, JSON.stringify(result));
+        await redisClient.setEx(cacheKey, 604800 , JSON.stringify(result));
     }
 
     return result;
