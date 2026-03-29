@@ -28,114 +28,6 @@ const getTopItemsByWeight = (itemsArray , limit) => {
     .map(item => item[0])
 }
 
-// دى الفانكشن اللى هنستعملها علشان نجيب الريكومنديشنز لليوزر فى الرروم
-// export const generateRoomRecommendations = async (roomId , hostAccessToken) => {
-//     const room = await Room.findById(roomId).populate('participants' , 'topArtists topTracks');
-//     if(!room) throw new AppError('Room not found' , 404);
-
-//     let allArtists = [];
-//     let allTracks = [];
-
-//     // هنجمع كل الاذواق فى مكان واحد عشان نشوف المشترك
-//     room.participants.forEach(participant => {
-//         if(participant && participant.topArtists) allArtists.push(...participant.topArtists);
-//         if(participant && participant.topTracks) allTracks.push(...participant.topTracks);
-//     })
-
-//     const fetchOptions = {
-//         headers: { 'Authorization': `Bearer ${hostAccessToken}` }
-//     };
-
-//     let finalTracksPool = [];
-
-//     try {
-//         // هنضيف الاغانى المشتركة مابين اليوزرز 
-//         const topSharedTracks = getTopItemsByWeight(allTracks , 5);
-//         if(topSharedTracks.length > 0){
-//             const trackRes = await fetch(`${SPOTIFY_API_URL}/v1/tracks?ids=${topSharedTracks.join(',')}`, fetchOptions)
-//             if(trackRes.ok){
-//                 const tracksData = await trackRes.json();
-//                 // حطينا ?. عشان لو tracks رجعت فاضية السيرفر ميقعش
-//                 if (tracksData?.tracks) {
-//                     finalTracksPool.push(...tracksData.tracks);
-//                 }
-//             }
-//         }
-
-//         // بعد كدا هنبدا نستنتج الفايب من الفنانين المشتركين ما بين اليوزرز
-//         const topSharedArtists = getTopItemsByWeight(allArtists , 5);
-//         let topGenres = [];
-
-//         if(topSharedArtists.length > 0){
-//             const artistsRes = await fetch(`${SPOTIFY_API_URL}/v1/artists?ids=${topSharedArtists.join(',')}`, fetchOptions);
-//             if(artistsRes.ok){
-//                 const artistsData = await artistsRes.json();
-//                 let allGeneres = [];
-
-//                 artistsData?.artists?.forEach(artist => {
-//                     if(artist && artist.genres) allGeneres.push(...artist.genres);
-//                 });
-//                 // هنا بعد ماجبنا كل الفايبز اللى مابين الفنانين بنجيب اعلى اتنين مشتركين
-//                 topGenres = getTopItemsByWeight(allGeneres , 2)
-//             }
-//         }
-
-//         // بعد ماجيبنا العلى نجيب بقا المشترك بناء على ال genre  الاعلى دى
-//         if(topGenres.length > 0){
-//             // لو لقينا هنعمل بحث بناء على الاغاني
-//             const genreQuery = topGenres.map(g => `genre:"${g}"`).join(' OR ');
-//             const searchQuery = encodeURIComponent(`${genreQuery} year:2024-2026`);
-            
-//             const searchRes = await fetch(`${SPOTIFY_API_URL}/v1/search?q=${searchQuery}&type=track&market=EG&limit=15`, fetchOptions);
-            
-//             if (searchRes.ok) {
-//                 const searchData = await searchRes.json();
-//                 if (searchData?.tracks?.items) {
-//                     finalTracksPool.push(...searchData.tracks.items);
-//                 }
-//             }
-//         }
-
-//         // بعد كدا بقا نبدا فى تجميع اللى عملناه دا كله ونعمل فلترة عشان مفيش حاجة تتكرر
-//         const uniqueTracks = [];
-//         const tracksIds = new Set();
-//         for(const track of finalTracksPool){
-//             if(track && track.id && !tracksIds.has(track.id)){
-//                 tracksIds.add(track.id);
-//                 uniqueTracks.push(track);
-//             }
-//         }
-
-//         // بعد كدا نخلط الاغعانى اللى طلعت دى عشان نعمل ميكس حلو
-//         for(let i = uniqueTracks.length - 1; i > 0; i--){
-//             const j = Math.floor(Math.random() * (i + 1));
-//             [uniqueTracks[i], uniqueTracks[j]] = [uniqueTracks[j], uniqueTracks[i]]
-//         }
-
-//         // لو مفيش اغانى اتعملت يعنى رجع نتيجة فاضية 
-//         if (uniqueTracks.length === 0) {
-//             const fallbackQuery = encodeURIComponent('year:2024-2026');
-//             const fallbackRes = await fetch(`${SPOTIFY_API_URL}/v1/search?q=${fallbackQuery}&type=track&market=EG&limit=20`, fetchOptions);
-            
-//             //  ضفنا شرط النجاح هنا عشان ميضربش لو سبوتيفاي رفض الريكويست
-//             if (fallbackRes.ok) {
-//                 const fallbackData = await fallbackRes.json();
-//                 //  ?. هترجع المصفوفة أو فاضية لو مفيش داتا
-//                 return fallbackData?.tracks?.items?.slice(0, 20) || [];
-//             } else {
-//                 return []; // نرجع فاضي أحسن ما نوقع السيرفر
-//             }
-//         }
-
-//         // نرجع أول 20 أغنية
-//         return uniqueTracks.slice(0, 20);
-//     } catch (error) {
-//         console.error("Vibe Engine Error:", error);
-//         throw new AppError('Vibe Engine failed to generate tracks', 500);
-//     }
-// }
-
-
 export const generateRoomRecommendations = async (roomId, hostAccessToken) => {
     const room = await Room.findById(roomId).populate('participants', 'topArtists topTracks');
     if (!room) throw new AppError('Room not found', 404);
@@ -160,10 +52,9 @@ export const generateRoomRecommendations = async (roomId, hostAccessToken) => {
 
 
     const fetchOptions = { headers: { 'Authorization': `Bearer ${hostAccessToken}` } };
-    let token;
     // بتأد ان التوكن لسه مخلصش لو خلص بجدده
     const meRes = await fetch(`${SPOTIFY_API_URL}/v1/me`, fetchOptions);
-    if (meRes.status === 401) token = await refreshSpotifyToken();
+    if (meRes.status === 401) throw new AppError('Spotify token is invalid or expired', 401);
     // بجيب هنا الفنانين بالايدى والتراكات بردو
     const getArtist = async (id) => {
         const res = await fetch(`${SPOTIFY_API_URL}/v1/artists/${id}`, fetchOptions);
@@ -268,7 +159,7 @@ export const generateRoomRecommendations = async (roomId, hostAccessToken) => {
 };
 
 // الفانكشن المسئولة عن تجديد الريفرش توكن لليوزر لما ينتهى
-export const refreshSpotifyToken = async (user) => {
+export const refreshSpotifyToken = async (user ) => {
     const authHeader = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64');
 
     // هنعمل بوست على سبوتيفاى علشان نجدد التوكن
@@ -284,11 +175,11 @@ export const refreshSpotifyToken = async (user) => {
         })
     });
 
-    if(!response.ok){
-        return next(new AppError('Something went wrong' , 500));
-    }
+    const data = await response.json().catch(() => ({}));
 
-    const data = await response.json();
+    if(!response.ok){
+        throw new AppError(data.error_description || data.error?.message || 'Failed to refresh Spotify token' , response.status || 500);
+    }
     // بعد ما نجيب الداتا نحدثها فى الداتابيز
     user.accessToken = data.access_token;
     user.tokenExpiresAt = new Date(Date.now() + data.expires_in * 1000);
@@ -415,3 +306,47 @@ export const getFullLibraryDetails = async (userId) => {
 
     return result;
 };
+
+// فانكشن مسئولة عن انها تعمل playlist on spotify
+export const createSpotifyPlaylist = async (toke ,  playListName , description) => {
+    try {
+        const response = await fetch(`${SPOTIFY_API_URL}/v1/me/playlists` , {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${toke}` , 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: playListName,
+                description: description,
+                public: false,
+            })
+        });
+
+        if(!response.ok){
+            throw new AppError('Failed to create playlist on Spotify', 500);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Spotify Playlist Creation Error:", error);
+        throw new AppError('Failed to create playlist on Spotify', 500);
+    }
+}
+
+// الفانكشن اللى بتضيف الاغانى جوا ال playlist
+export const addTracksToPlaylist = async(token , playlistId , trackUris) => {
+    try {
+        const response = await fetch(`${SPOTIFY_API_URL}/v1/playlists/${playlistId}/items`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                uris: trackUris.slice(0, 100) 
+            })
+        });
+
+        if(!response.ok){
+            throw new AppError('Failed to add tracks to playlist on Spotify', 500);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Spotify Playlist Tracks Addition Error:", error);
+        throw new AppError('Failed to add tracks to playlist on Spotify', 500);
+    }
+}

@@ -1,48 +1,4 @@
 const SPOTIFY_API_URL = "https://api.spotify.com";
-// الفانكشن اللى هتجيب البلاى لسيت بتاعتنا بناء على الكلمات اللى هنبعتهالو
-// const fetchPlaylistsByQuery = async (query , token , limit = 3) => {
-//     // هنعمل انكود للكويرى علشان نبتها مظبوطة
-//     const encodedQuery = encodeURIComponent(query);
-
-//     // بعد كدا نبعت الريكوست لسبوتيفاى بالسيرش اللى عايزينه
-//     const res = await fetch(`${SPOTIFY_API_URL}/v1/search?q=${encodedQuery}&type=track&limit=${limit}` , {
-//         headers: { 'Authorization': `Bearer ${token}` }
-//     });
-
-//     if(!res.ok) return [];
-//     const data = await res.json();
-//     return data.playlists?.items?.map(p => p?.id).filter(Boolean) || [];
-// } 
-
-// الفانكشن اللى هتسحب الاغانى من بلاى ليست معينة
-// const fetchTracksDirectly = async (query , token , limit = 10) => {
-//     const encodedQuery = encodeURIComponent(query);
-//     const offsets = [0 , 10 , 20]
-//     // هنبعت الريكوست اللى هنسحب بيه لسبوتيفاى
-//     const pages = await Promise.all(offsets.map(offset => 
-//         fetch(`${SPOTIFY_API_URL}/v1/search?q=${encodedQuery}&type=track&limit=${limit}&offset=${offset}&market=US`, {
-//             headers: { 'Authorization': `Bearer ${token}` }
-//         }).then(async res => {
-//             if (!res.ok) {
-//                 console.error(`Spotify error: ${res.status}`, await res.text());
-//                 return [];
-//             }
-//             const data = await res.json();
-//             return data.tracks?.items || [];
-//         })
-//     ));
-
-//     // هنظبط الداتا وناخد بس اللى محتاجينه عشان منملاش مساحة على الفاضى
-//     return pages.flat()
-//         .filter(track => track && track.id)
-//         .map(track => ({
-//             id: track.id,
-//             name: track.name,
-//             artist: track.artists.map(a => a.name).join(', ') || "Unknown",
-//             popularity: track.popularity
-//         }));
-// }
-
 const fetchTracksDirectly = async (query, token, offset = 0) => {
     const encodedQuery = encodeURIComponent(query);
     const url = `${SPOTIFY_API_URL}/v1/search?q=${encodedQuery}&type=track&market=EG&limit=10&offset=${offset}`;
@@ -107,7 +63,6 @@ export const mineTrackPool = async (vibe , genres , era , token) => {
     const yearFilter = era !== 'Anything' ? ` year:${era}` : '';
     const finalQueries = queries.map(q => `${q}${yearFilter}`);
 
-    console.log("Running Spotify Queries:", finalQueries);
     
     // نضرب الـ 4 ريكويستات في نفس الوقت (Parallel)
     const trackPromises = finalQueries.flatMap(q => [

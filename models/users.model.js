@@ -44,6 +44,37 @@ const userSchema = new mongoose.Schema({
             }
         }
     ],
+    musicRoast: {
+        roastText: String,
+        guiltyPleasures: [String],
+        therapyPlaylist: [String],
+        language: {
+            type: String,
+            enum: ['ar' , 'en'],
+            default: 'ar'
+        },
+        generatedAt: Date
+    },
+    hipsterMeter: {
+        mainStreamScore: Number,
+        hipsterScore: Number,
+        badge: String,
+        badgeDescription: String,
+        proof: Object,
+        generatedAt: Date
+    },
+    vibeMatches: [
+        {
+            targetUserId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+            matchScore: Number,
+            analysis: String,
+            commonGround: [String],
+            generatedAt: Date
+        }
+    ],
     lastSyncedAt: Date,
     accessToken: {
         type: String,
