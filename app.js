@@ -13,6 +13,7 @@ import queueRouter from "./routes/queue.routes.js";
 import userRouter from "./routes/users.routes.js";
 import playerRouter from "./routes/player.routes.js";
 import featureRouter from "./routes/features.routes.js";
+import songRouter from "./routes/songs.routes.js";
 dotenv.config({path: "config/.env"})
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/v1/queue' , queueRouter)
 app.use('/api/v1/users' , userRouter);
 app.use('/api/v1/player' , playerRouter);
 app.use('/api/v1/features' , featureRouter);
+app.use('/api/v1/songs' , songRouter);
 app.get('/api/v1/auth/me' , authorize , (req , res) => {
   res.status(200).json({
     status: "success",

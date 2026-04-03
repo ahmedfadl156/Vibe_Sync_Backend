@@ -146,7 +146,7 @@ export const callback = catchAsync(async (req , res , next) => {
             refreshToken: refresh_token,
             tokenExpiresAt: tokenExpiresAt
         },
-        {new: true , upsert: true}
+        {returnDocument: "after" , upsert: true}
     );
 
     const vibeToken = jwt.sign(

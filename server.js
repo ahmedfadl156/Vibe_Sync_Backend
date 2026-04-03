@@ -3,9 +3,12 @@ import app from "./app.js";
 import connectDB from "./config/db.js";
 import http from "http"
 import { Server } from "socket.io";
+import dns from "dns";
 dotenv.config({ path: "config/.env" });
 
+dns.setServers(["8.8.8.8" , "1.1.1.1"]);
 const PORT = process.env.PORT || 5500;
+
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer , {
@@ -47,8 +50,8 @@ const startServer = async () => {
         process.exit(1);
         }
 
-        console.error("Server failed:", error.message);
-        process.exit(1);
+        console.error("Server failed:", error.message); 
+        process.exit(1); 
     });
 } catch (error) {
     console.error("Failed to start server:", error.message);
